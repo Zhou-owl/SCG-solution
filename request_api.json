@@ -1,0 +1,298 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Request Management API",
+    "version": "1.0.0",
+    "description": "API for managing various employee requests"
+  },
+  "paths": {
+    "/api/request/new": {
+      "post": {
+        "summary": "Submit a new request",
+        "description": "Allows an employee (service requestor) to submit a new request",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "employee_id": {
+                    "type": "string",
+                    "description": "Employee ID"
+                  },
+                  "request_type": {
+                    "type": "string",
+                    "description": "Type of request"
+                  },
+                  "start_time": {
+                    "type": "string",
+                    "description": "Start time of the request in ISO 8601 format",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "employee_id",
+                  "request_type",
+                  "start_time"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Request received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:ap-southeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-southeast-1:488570541368:function:cmkl-rei/invocations",
+          "credentials": "arn:aws:iam::488570541368:role/cmkl-rei-role-zu3chezx"
+        }
+      }
+    },
+    "/api/request/pending": {
+      "get": {
+        "summary": "Get pending requests",
+        "description": "Retrieves all pending requests for the service provider (HR staff) to review",
+        "responses": {
+          "200": {
+            "description": "List of pending requests with employee details, request type, and payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "request_id": {
+                        "type": "string",
+                        "description": "Request ID"
+                      },
+                      "employee_id": {
+                        "type": "string",
+                        "description": "Employee ID"
+                      },
+                      "request_type": {
+                        "type": "string",
+                        "description": "Type of request"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/request/approve": {
+      "post": {
+        "summary": "Approve a request",
+        "description": "Allows the service provider (HR staff) to approve a pending request",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "request_id": {
+                    "type": "string",
+                    "description": "Request ID"
+                  }
+                },
+                "required": [
+                  "request_id"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Request approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/api/request/reject": {
+        "post": {
+          "summary": "Reject a request",
+          "description": "Allows the service provider (HR staff) to reject a pending request",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "description": "Request ID"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "description": "Optional reason for rejection"
+                    }
+                  },
+                  "required": [
+                    "request_id"
+                  ]
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Request rejected",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/api/request/status/{request_id}": {
+        "get": {
+          "summary": "Get request status",
+          "description": "Retrieves the status of a specific request",
+          "parameters": [
+            {
+              "name": "request_id",
+              "in": "path",
+              "description": "Request ID",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Request status, request type, and details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "description": "Request status"
+                      },
+                      "request_type": {
+                        "type": "string",
+                        "description": "Type of request"
+                      },
+                      "details": {
+                        "type": "object",
+                        "description": "Request details"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Request not found"
+            }
+          }
+        }
+      },
+      "/api/request/complete": {
+        "post": {
+          "summary": "Complete a request",
+          "description": "Marks a request as completed",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "description": "Request ID"
+                    },
+                    "end_time": {
+                      "type": "string",
+                      "description": "End time of the request in ISO 8601 format",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "request_id",
+                    "end_time"
+                  ]
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Request completed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      }
+    }
+  }    

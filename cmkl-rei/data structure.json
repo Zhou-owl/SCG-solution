@@ -1,0 +1,45 @@
+{
+    "__annotation__":"database: Request stucture",
+    "request_id": "long",
+    "requestor_id": "string",
+    "request_type": "string",
+    "request_start_time":"",
+    "request_finish_time":"",
+    "__status__":"",
+
+    "load":{
+        "requestor":{
+            "start_time":"",
+            "finish_time":"",
+            "info_content":{},
+            "__annotation__":"When a new request started by reqestor, start_time = finish_time = request_start_time. Only if the request reach 'requestor in progress' status, start_time = <requestor in progress start time>, finish_time = <requestor in progress end time>"
+        },
+        "P1 process":{
+            "department":"string",
+            "provider ID":"string",
+            "start_time":"",
+            "finish_time":"",
+            
+            "info_content":{
+                "__annotation__": "it will be sent to P2"
+            },
+
+            "reject_reason":"annotation: reject_reason will be sent to requestor only if P1 spotted any mistakes, which will lead to a 'requestor in progress' status",
+        },
+
+        "P2 process":{},
+
+        "result":{
+            "__annotation__": "result will be sent to the requester"
+        }
+    },
+    
+    "chat":{
+        "member":[],
+        "content":{}
+    },
+
+    "process_flow":["P1-department","P2-department"],
+
+    "__additional_control_elem__":"char"
+}
